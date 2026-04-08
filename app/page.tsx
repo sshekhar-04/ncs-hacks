@@ -9,6 +9,9 @@ const HeroSection = dynamic(() => import("./components/Hero/HeroSection"), {
   loading: () => <LoadingScreen />,
 });
 
+// VIDEO SCROLL AT THE VERY START
+const VideoScroll = dynamic(() => import("./components/VideoScroll/VideoScroll"), { ssr: false });
+
 // CORE SECTIONS
 const AboutNibble = dynamic(() => import("./components/aboutNibble/AboutNibble"), { ssr: false });
 const HackathonTracks = dynamic(() => import("./components/tracks/Tracks"), { ssr: false });
@@ -26,6 +29,9 @@ const Mascot = dynamic(() => import("./components/mascot/Mascot"), { ssr: false 
 export default function Home() {
   return (
     <>
+
+      {/* ================= STARTING VIDEO SCROLL ================= */}
+      <VideoScroll />
 
       {/* ================= HERO (FIGMA DESIGN) ================= */}
       <HeroSection />
