@@ -2,7 +2,6 @@
 
 import { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 
 const NAV_LINKS = [
   { name: 'Home', href: '#' },
@@ -15,7 +14,7 @@ const NAV_LINKS = [
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
-  const [isVisible, setIsVisible] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
   const [ctaHovered, setCtaHovered] = useState(false);
   const [ctaPressed, setCtaPressed] = useState(false);
   const [mouseX, setMouseX] = useState(0.5);
@@ -43,37 +42,27 @@ export default function Navbar() {
     return () => { document.body.style.overflow = ''; };
   }, [menuOpen]);
 
-  // Scroll tracking to delay appearance until after Hero (900vh)
+  // Scroll tracking — always visible, but condense when scrolled down
   useEffect(() => {
     let ticking = false;
     const handleScroll = () => {
       if (!ticking) {
         window.requestAnimationFrame(() => {
           const y = window.scrollY;
-          const heroThreshold = window.innerHeight * 9 - 100; // Just before particle section ends
-          
-          const isPastHero = y > heroThreshold;
-          setIsVisible(isPastHero);
-          
-          if (isPastHero) {
-            setScrolled(y > heroThreshold + 40);
-            setScrollProgress(Math.min(1, (y - heroThreshold) / 300));
-          } else {
-            if (scrolled !== false) setScrolled(false);
-            if (scrollProgress !== 0) setScrollProgress(0);
-          }
+          setIsVisible(true);
+          setScrolled(y > 100);
+          setScrollProgress(Math.min(1, y / 400));
           ticking = false;
         });
         ticking = true;
       }
     };
     
-    // Initial check on mount
     handleScroll();
     
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [scrolled, scrollProgress]);
+  }, []);
 
   // Mouse parallax
   useEffect(() => {
@@ -108,7 +97,6 @@ export default function Navbar() {
 
   // JS-computed dynamic values (cannot be static Tailwind)
   // Reduced transparency: Higher base and max values
-  const glassOpacity = 0.8; // Requested 80% opacity
   const blurAmount = 18 + scrollProgress * 14;
   const marginTop = scrolled ? 10 : 20;
   const sweepX = mouseX * 130 - 15;
@@ -140,17 +128,14 @@ export default function Navbar() {
 
           {/* ── MAIN GLASS PANEL (Layer 1) ── */}
           <div
-            className="relative flex items-center justify-between rounded-[72px] border border-white/15 overflow-hidden transition-[padding,background,box-shadow,backdrop-filter] duration-500"
+            className="relative flex items-center justify-between rounded-[72px] overflow-hidden transition-[padding,background,box-shadow,backdrop-filter] duration-500"
             style={{
-              padding: `${scrolled ? 18 : 22}px 40px`,
-              background: `rgba(4, 4, 4, ${glassOpacity})`,
-              backdropFilter: `blur(${blurAmount}px) saturate(160%)`,
-              WebkitBackdropFilter: `blur(${blurAmount}px) saturate(160%)`,
-              boxShadow: `
-                0 ${8 + scrollProgress * 16}px ${32 + scrollProgress * 32}px rgba(0,0,0,${0.04 + scrollProgress * 0.08}),
-                0 2px 8px rgba(201, 168, 76,${0.06 + scrollProgress * 0.1}),
-                inset 0 -1px 0 rgba(201, 168, 76, 0.12)
-              `,
+              padding: `${scrolled ? 18 : 19}px 40px`,
+              background: 'rgba(22, 22, 22, 0.8)',
+              border: '1px solid rgba(201, 162, 39, 0.28)',
+              backdropFilter: `blur(${blurAmount}px)`,
+              WebkitBackdropFilter: `blur(${blurAmount}px)`,
+              boxShadow: '0px 24px 64px rgba(0, 0, 0, 0.12), 0px 2px 8px rgba(201, 162, 39, 0.16), inset 0px 1px 0px 1px rgba(255, 255, 255, 0.08), inset 0px -1px 0px 1px rgba(201, 162, 39, 0.12)',
             }}
           >
 
@@ -172,32 +157,48 @@ export default function Navbar() {
               }}
             />
 
-            {/* ── BOTTOM GOLD GLOW EDGE ── */}
+            {/* ── BOTTOM GOLD GLOW EDGE — exact Figma ── */}
             <div
-              className="absolute bottom-0 left-[10%] right-[10%] h-px pointer-events-none"
+              className="absolute bottom-[1px] left-[10.06%] right-[10.05%] h-px pointer-events-none"
               style={{
-                background: 'linear-gradient(90deg, transparent, rgba(201, 168, 76,0.5) 30%, rgba(249,212,76,0.8) 50%, rgba(201, 168, 76,0.5) 70%, transparent)',
-                boxShadow: '0 2px 12px rgba(201, 168, 76,0.3)',
+                background: 'linear-gradient(90deg, rgba(201, 162, 39, 0) 0%, rgba(201, 162, 39, 0.5) 30%, rgba(249, 212, 76, 0.8) 50%, rgba(201, 162, 39, 0.5) 70%, rgba(201, 162, 39, 0) 100%)',
+                filter: 'drop-shadow(0px 2px 12px rgba(201, 162, 39, 0.3))',
               }}
             />
 
-            {/* ═══════════════ LOGOS ═══════════════ */}
+            {/* ═══════════════ INOUT BRANDING ═══════════════ */}
             <div
               className="flex-1 flex justify-start relative z-[2] transition-opacity duration-300 opacity-100"
             >
               <Link href="/" className="flex items-center gap-3 no-underline">
-                <div className="relative w-12 h-12 shrink-0">
-                  <Image src="/logos/one.png" alt="Logo 1" fill sizes="48px" className="object-contain drop-shadow-[0_0_6px_rgba(201,168,76,0.4)]" />
-                </div>
-                <div className="relative w-12 h-12 shrink-0">
-                  <Image src="/logos/two.png" alt="Logo 2" fill sizes="48px" className="object-contain drop-shadow-[0_0_6px_rgba(201,168,76,0.4)]" />
-                </div>
-                <div className="relative w-12 h-12 shrink-0">
-                  <Image src="/logos/three.png" alt="Logo 3" fill sizes="48px" className="object-contain drop-shadow-[0_0_6px_rgba(201,168,76,0.4)]" />
-                </div>
-                <div className="relative w-12 h-12 shrink-0">
-                  <Image src="/logos/four.png" alt="Logo 4" fill sizes="48px" className="object-contain drop-shadow-[0_0_6px_rgba(201,168,76,0.4)]" />
-                </div>
+                {/* Gold orb logo */}
+                <div
+                  style={{
+                    width: '36px',
+                    height: '36px',
+                    borderRadius: '50%',
+                    background: 'radial-gradient(circle at 35% 30%, #fff9e6, #F5E0A3 40%, #C9A84C 70%, #8F722E)',
+                    boxShadow: '0 0 14px rgba(201,168,76,0.45), inset 0 1px 0 rgba(255,255,255,0.5)',
+                    flexShrink: 0,
+                  }}
+                />
+                {/* INOUT text */}
+                <span
+                  className="font-heading"
+                  style={{
+                    fontSize: '1.25rem',
+                    fontWeight: 700,
+                    letterSpacing: '0.15em',
+                    textTransform: 'uppercase',
+                    background: 'linear-gradient(108.75deg, #FFC452 0%, #FFE38B 30%, #FFE38B 55%, #FFDF7B 75%, #FFDB9B 100%)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    backgroundClip: 'text',
+                    filter: 'drop-shadow(0 0 8px rgba(201,168,76,0.3))',
+                  }}
+                >
+                  INOUT
+                </span>
               </Link>
             </div>
 
@@ -209,9 +210,9 @@ export default function Navbar() {
                     href={link.href}
                     className="
                       group relative inline-block
-                      font-body text-[0.875rem] font-bold tracking-widest uppercase no-underline
-                      text-white/90 transition-[color,transform,text-shadow] duration-300 ease-out
-                      hover:text-[#F5E0A3] hover:-translate-y-0.5
+                      font-heading text-[16px] font-bold tracking-[0.04em] uppercase no-underline
+                      text-[#FFC979] transition-[color,transform,text-shadow] duration-300 ease-out
+                      hover:text-[#FEC062] hover:-translate-y-0.5
                       hover:[text-shadow:0_0_16px_rgba(201, 168, 76,0.55),0_0_32px_rgba(201, 168, 76,0.2)]
                       py-1
                     "
@@ -290,8 +291,8 @@ export default function Navbar() {
                   className="absolute inset-[1.5px] rounded-[48px] pointer-events-none"
                   style={{
                     background: ctaHovered
-                      ? 'linear-gradient(135deg, #F5E0A3 0%, #F5E0A3 30%, #fce97a 55%, #d4a820 80%, #F5E0A3 100%)'
-                      : 'linear-gradient(135deg, #8F722E 0%, #9a7220 25%, #C9A84C 45%, #e8c040 60%, #a07820 80%, #8F722E 100%)',
+                      ? 'linear-gradient(103.81deg, #FFD03D 0%, #FFE38B 30%, #FFD03D 55%, #F7C937 80%, #FFB240 100%)'
+                      : 'linear-gradient(103.81deg, #FFB240 0%, #FFB826 25%, #FFD03D 45%, #F7C937 60%, #ECB328 80%, #DC952C 100%)',
                     transition: 'background 400ms ease',
                     boxShadow: ctaHovered
                       ? 'inset 0 -2px 0 rgba(80,40,0,0.35)'
@@ -349,10 +350,11 @@ export default function Navbar() {
 
                 {/* Label */}
                 <span
-                  className="relative z-[2] font-body font-bold uppercase"
+                  className="relative z-[2] font-heading font-bold capitalize"
                   style={{
-                    fontSize: '0.75rem',
-                    letterSpacing: '0.12em',
+                    fontSize: '14px',
+                    lineHeight: '15px',
+                    letterSpacing: '0.04em',
                     color: ctaHovered ? 'rgba(45,20,0,0.95)' : '#fff',
                     textShadow: ctaHovered ? 'none' : '0 1px 8px rgba(0,0,0,0.45)',
                     transition: 'color 300ms ease, text-shadow 300ms ease',

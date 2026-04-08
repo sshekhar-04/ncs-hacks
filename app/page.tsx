@@ -3,19 +3,11 @@
 import dynamic from "next/dynamic";
 import LoadingScreen from "./components/ui/LoadingScreen";
 
-// HERO SYSTEM
-const AsgardCanvas = dynamic(() => import("./components/Hero/AsgardCanvas"), {
+// HERO SYSTEM — static Figma-matching hero
+const HeroSection = dynamic(() => import("./components/Hero/HeroSection"), {
   ssr: false,
   loading: () => <LoadingScreen />,
 });
-const CinematicOverlay = dynamic(
-  () => import("./components/Hero/CinematicOverlay"),
-  { ssr: false, loading: () => <LoadingScreen /> }
-);
-const ParticleOverlay = dynamic(
-  () => import("./components/Hero/ParticleOverlay"),
-  { ssr: false, loading: () => <LoadingScreen /> }
-);
 
 // CORE SECTIONS
 const AboutNibble = dynamic(() => import("./components/aboutNibble/AboutNibble"), { ssr: false });
@@ -35,17 +27,8 @@ export default function Home() {
   return (
     <>
 
-      {/* ================= HERO (CINEMATIC ENTRY) ================= */}
-      <section id="hero" className="relative z-30 bg-transparent">
-
-        <div id="scroll-container" className="relative h-[900vh] w-full">
-          <div className="sticky top-0 left-0 w-full h-[100dvh] overflow-hidden bg-transparent">
-            <AsgardCanvas />
-            <CinematicOverlay />
-            <ParticleOverlay />
-          </div>
-        </div>
-      </section>
+      {/* ================= HERO (FIGMA DESIGN) ================= */}
+      <HeroSection />
 
 
       {/* ================= MAIN EXPERIENCE ================= */}
